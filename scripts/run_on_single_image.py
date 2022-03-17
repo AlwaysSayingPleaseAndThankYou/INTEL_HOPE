@@ -8,8 +8,6 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 
 
-
-
 def loaded_model():
     hope = HopeNet()
     p = Path("..", "checkpoints", "Feb_26.pkl375.pkl").resolve()
@@ -37,7 +35,7 @@ def plot_from_single_image(classified_result):
     plt_colors = [np.random.rand(3, ) for i in range(29)]
     # figures
     fig = plt.figure()
-    twoD = fig.add_subplot(3, 1, 1 )
+    twoD = fig.add_subplot(3, 1, 1)
     twoDQ = fig.add_subplot(3, 1, 2)
     threeD = fig.add_subplot(3, 1, 3, projection='3d')
     # split data
@@ -56,23 +54,23 @@ def plot_from_single_image(classified_result):
         twoD.scatter(point[0], point[1], c=plt_colors[i])
     for i, point in enumerate(zip(datatwoDqx, datatwoDqy)):
         twoDQ.scatter(point[0], point[1], c=plt_colors[i])
-    #3d plot
+    # 3d plot
     dataThreeDx = [d[0] for d in dataThreeD]
     dataThreeDy = [d[1] for d in dataThreeD]
     dataThreeDz = [d[2] for d in dataThreeD]
     for i, point in enumerate(zip(dataThreeDx, dataThreeDy, dataThreeDz)):
         threeD.scatter(point[0], point[1], point[2], c=plt_colors[i])
 
-
-
     return fig
+
 
 if __name__ == "__main__":
     applied_transform = transforms.Compose([transforms.Resize((224, 224)),
                                             transforms.ToTensor()])
-    pic_path = Path( "test_hand_with_pliers.jpg")
+    pic_path = Path("test_hand_with_pliers.jpg")
     pic_path_2 = Path('dad_hand_with_knife.jpeg')
     hope = loaded_model()
     out = classify(hope, pic_path_2, applied_transform)
     ret = plot_from_single_image(out)
     ret.show()
+    ret.savefig('test.png')
