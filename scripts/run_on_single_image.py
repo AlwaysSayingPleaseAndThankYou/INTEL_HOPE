@@ -45,6 +45,7 @@ def classify(model, image: Path, model_transform):
 
 
 def plot_from_single_image(classified_result):
+    plt_colors = [np.random.rand(3, ) for i in range(29)]
     # figures
     fig = plt.figure()
     twoD = fig.add_subplot(3, 1, 1 )
@@ -62,10 +63,12 @@ def plot_from_single_image(classified_result):
     datatwoDqx = [d[0] for d in datatwoD]
     datatwoDqy = [d[1] for d in datatwoD]
 
-    for point in zip(datatwoDx, datatwoDy):
-        twoD.scatter(point[0], point[1], c=np.random.rand(3, ))
-    for point in zip(datatwoDqx, datatwoDqy):
-        twoDQ.scatter(point[0], point[1], c=np.random.rand(3, ))
+    for i, point in enumerate(zip(datatwoDx, datatwoDy)):
+        twoD.scatter(point[0], point[1], c=plt_colors[i])
+    for i, point in enumerate(zip(datatwoDqx, datatwoDqy)):
+        twoDQ.scatter(point[0], point[1], c=plt_colors[i])
+    #3d plot
+
 
     return fig
 
