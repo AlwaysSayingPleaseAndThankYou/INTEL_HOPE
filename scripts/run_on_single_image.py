@@ -54,7 +54,7 @@ def plot_from_single_image(classified_result):
     # split data
     datatwoD = classified_result[0].detach().numpy()[0]
     datatwoDQ = classified_result[1].detach().numpy()[0]
-    dataThreeD = classified_result[2].detach().numpy()
+    dataThreeD = classified_result[2].detach().numpy()[0]
 
     # 2d plots
     datatwoDx = [d[0] for d in datatwoD]
@@ -68,6 +68,12 @@ def plot_from_single_image(classified_result):
     for i, point in enumerate(zip(datatwoDqx, datatwoDqy)):
         twoDQ.scatter(point[0], point[1], c=plt_colors[i])
     #3d plot
+    dataThreeDx = [d[0] for d in dataThreeD]
+    dataThreeDy = [d[1] for d in dataThreeD]
+    dataThreeDz = [d[2] for d in dataThreeD]
+    for i, point in enumerate(zip(dataThreeDx, dataThreeDy, dataThreeDz)):
+        threeD.scatter(point[0], point[1], point[2], c=plt_colors[i])
+
 
 
     return fig
