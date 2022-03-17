@@ -7,8 +7,6 @@ import torch
 from torchvision import transforms
 import matplotlib.pyplot as plt
 
-applied_transform = transforms.Compose([transforms.Resize((224, 224)),
-                                        transforms.ToTensor()])
 
 
 def imports():
@@ -33,25 +31,6 @@ def loaded_model():
     return hope
 
 
-def prep_single_image(image_path):
-    """
-    Note
-    _________
-    default:
-     * (JpegImageFile, Parameter, NoneType, tuple, tuple, tuple, int),
-    required:
-     * (Tensor input, Tensor weight, Tensor bias, tuple of ints stride, tuple of ints padding, tuple of ints dilation, int groups)
-
-    Parameters
-    ----------
-    image_path : path
-    """
-    if image_path.is_file():
-        pic = np.load(image_path)
-
-    return None
-
-
 def classify(model, image: Path, model_transform):
     model = model.eval()
     image = Image.open(image)
@@ -66,17 +45,17 @@ def classify(model, image: Path, model_transform):
 
 
 def plot_from_single_image(classified_result):
-    #figures
+    # figures
     fig = plt.figure()
-    twoD = fig.add_subplot(3, 1, 1)
-    twoDQ = fig.add_subplot(3, 1, 2)
-    threeD = fig.add_subplot(3, 1, 3)
-    #split data
-    datatwoD = classified_result[0].detach.numpy()
-    datatwoDQ = classified_result[1].detach.numpy()
-    dataThreeD = classified_result[2].detach.numpy()
+    twoD = fig.add_subplot(3, 1, 1, projection='3d')
+    twoDQ = fig.add_subplot(3, 1, 2, projection='3d')
+    threeD = fig.add_subplot(3, 1, 3, projection='3d')
+    # split data
+    datatwoD = classified_result[0].detach().numpy()
+    datatwoDQ = classified_result[1].detach().numpy()
+    dataThreeD = classified_result[2].detach().numpy()
 
-    #2d plots
+    # 2d plots
     datatwoDx = [d[0] for d in datatwoD]
     datatwoDy = [d[1] for d in datatwoD]
     datatwoDz = [d[2] for d in datatwoD]
@@ -84,9 +63,18 @@ def plot_from_single_image(classified_result):
     datatwoDqx = [d[0] for d in datatwoD]
     datatwoDqy = [d[1] for d in datatwoD]
     datatwoDqz = [d[2] for d in datatwoD]
-
-    twoD.scatter3D(datatwoDx, datatwoDy, datatwoDz, c='r')
-    twoDQ.scatter3D(datatwoDqx, datatwoDqy, datatwoDqz, c='r')
+    for point in [datatwoDx, datatwoDy, datatwoDz]:
+        twoD.scatter3D(point[0], point[1], point[2], c=np.random.rand(3, ))
+    for point in [datatwoDqx, datatwoDqy, datatwoDqz]:
+        twoDQ.scatter3D(point[0], point[1], point[2], c=np.random.rand(3, ))
 
     return fig
 
+if __name__ == "__main__":
+    applied_transform = transforms.Compose([transforms.Resize((224, 224)),
+                                            transforms.ToTensor()])
+    pic_path = Path( "test_hand_with_pliers.jpg")
+    hope = loaded_model()
+    out = classify(hope, pic_path, applied_transform)
+    ret = plot_from_single_image(out)
+    ret.show()
