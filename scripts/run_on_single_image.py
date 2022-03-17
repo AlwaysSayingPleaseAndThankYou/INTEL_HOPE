@@ -47,26 +47,25 @@ def classify(model, image: Path, model_transform):
 def plot_from_single_image(classified_result):
     # figures
     fig = plt.figure()
-    twoD = fig.add_subplot(3, 1, 1, projection='3d')
-    twoDQ = fig.add_subplot(3, 1, 2, projection='3d')
+    twoD = fig.add_subplot(3, 1, 1 )
+    twoDQ = fig.add_subplot(3, 1, 2)
     threeD = fig.add_subplot(3, 1, 3, projection='3d')
     # split data
-    datatwoD = classified_result[0].detach().numpy()
-    datatwoDQ = classified_result[1].detach().numpy()
+    datatwoD = classified_result[0].detach().numpy()[0]
+    datatwoDQ = classified_result[1].detach().numpy()[0]
     dataThreeD = classified_result[2].detach().numpy()
 
     # 2d plots
     datatwoDx = [d[0] for d in datatwoD]
     datatwoDy = [d[1] for d in datatwoD]
-    datatwoDz = [d[2] for d in datatwoD]
 
     datatwoDqx = [d[0] for d in datatwoD]
     datatwoDqy = [d[1] for d in datatwoD]
-    datatwoDqz = [d[2] for d in datatwoD]
-    for point in [datatwoDx, datatwoDy, datatwoDz]:
-        twoD.scatter3D(point[0], point[1], point[2], c=np.random.rand(3, ))
-    for point in [datatwoDqx, datatwoDqy, datatwoDqz]:
-        twoDQ.scatter3D(point[0], point[1], point[2], c=np.random.rand(3, ))
+
+    for point in zip(datatwoDx, datatwoDy):
+        twoD.scatter(point[0], point[1], c=np.random.rand(3, ))
+    for point in zip(datatwoDqx, datatwoDqy):
+        twoDQ.scatter(point[0], point[1], c=np.random.rand(3, ))
 
     return fig
 
