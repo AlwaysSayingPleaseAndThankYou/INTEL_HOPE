@@ -9,21 +9,10 @@ import matplotlib.pyplot as plt
 
 
 
-def imports():
-    import numpy as np
-    from pathlib import Path
-    from collections import OrderedDict
-    from models.hopenet import HopeNet
-    from PIL import Image
-    import torch
-    from torchvision import transforms
-    import matplotlib.pyplot as plt
-    return None
-
 
 def loaded_model():
     hope = HopeNet()
-    p = Path("/Users/aenguscrowley/PycharmProjects/REAL_HOPE/checkpoints/Feb_26.pkl375.pkl")
+    p = Path("..", "checkpoints", "Feb_26.pkl375.pkl").resolve()
     bad_dict = torch.load(p, map_location=torch.device('cpu'))
 
     good_dict = OrderedDict({key[len('module.'):]: value for key, value in bad_dict.items()})
@@ -82,7 +71,8 @@ if __name__ == "__main__":
     applied_transform = transforms.Compose([transforms.Resize((224, 224)),
                                             transforms.ToTensor()])
     pic_path = Path( "test_hand_with_pliers.jpg")
+    pic_path_2 = Path('dad_hand_with_knife.jpeg')
     hope = loaded_model()
-    out = classify(hope, pic_path, applied_transform)
+    out = classify(hope, pic_path_2, applied_transform)
     ret = plot_from_single_image(out)
     ret.show()
