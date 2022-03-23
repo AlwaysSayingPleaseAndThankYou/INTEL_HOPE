@@ -78,10 +78,41 @@ def plot_from_single_image(classified_result):
     dataThreeDx = [d[0] for d in dataThreeD]
     dataThreeDy = [d[1] for d in dataThreeD]
     dataThreeDz = [d[2] for d in dataThreeD]
-    ThreeDPoints = enumerate(zip(dataThreeDx, dataThreeDy, dataThreeDz))
-    for i, point in ThreeDPoints:
+    ThreeDPoints = [[dataThreeDx[i], dataThreeDy[i], dataThreeDz[i]] for i in range(0,len(dataThreeDx))]
+    print(ThreeDPoints)
+    # plot resulting vertices
+    for i, point in enumerate(ThreeDPoints):
         threeD.scatter(point[0], point[1], point[2], c=plt_colors[i])
-
+    # plot line segments to properly connect vertices together
+    # connect hand segments together
+    for i in range(1, 21, 4):
+        threeD.plot(\
+            [ThreeDPoints[0][0], ThreeDPoints[i][0], ThreeDPoints[i+1][0], ThreeDPoints[i+2][0], ThreeDPoints[i+3][0]],\
+            [ThreeDPoints[0][1], ThreeDPoints[i][1], ThreeDPoints[i+1][1], ThreeDPoints[i+2][1], ThreeDPoints[i+3][1]],\
+            [ThreeDPoints[0][2], ThreeDPoints[i][2], ThreeDPoints[i+1][2], ThreeDPoints[i+2][2], ThreeDPoints[i+3][2]],\
+            c=plt_colors[i])
+    # connect object points together
+    for i in range(22, 29, 2):
+        threeD.plot(\
+            [ThreeDPoints[i-1][0], ThreeDPoints[i][0]],\
+            [ThreeDPoints[i-1][1], ThreeDPoints[i][1]],\
+            [ThreeDPoints[i-1][2], ThreeDPoints[i][2]],\
+            c=plt_colors[i])
+    for i in list(range(23, 25)) + list(range(27, 29)):
+        threeD.plot(\
+            [ThreeDPoints[i-2][0], ThreeDPoints[i][0]],\
+            [ThreeDPoints[i-2][1], ThreeDPoints[i][1]],\
+            [ThreeDPoints[i-2][2], ThreeDPoints[i][2]],\
+            c=plt_colors[i])
+    for i in range(25, 29):
+        threeD.plot(\
+            [ThreeDPoints[i-4][0], ThreeDPoints[i][0]],\
+            [ThreeDPoints[i-4][1], ThreeDPoints[i][1]],\
+            [ThreeDPoints[i-4][2], ThreeDPoints[i][2]],\
+            c=plt_colors[i])
+    threeD.view_init(45, 60)
+    plt.draw()
+    plt.pause(0.001)
     return fig
 
 
