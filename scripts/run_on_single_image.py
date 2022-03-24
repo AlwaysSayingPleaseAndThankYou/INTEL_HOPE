@@ -52,28 +52,21 @@ def plot_from_single_image(classified_result):
         0.5 if i == 0 else 1.0 if i > 4 and i <= 12 else 0.0, \
         0.5 if i == 0 else 1.0 if i > 12 and i <= 20 else 0.0] \
         for i in range(0,29)]
-    print(plt_colors)
     # figures
     fig = plt.figure()
-    #twoD = fig.add_subplot(3, 1, 1)
-    #twoDQ = fig.add_subplot(3, 1, 2)
-    threeD = fig.add_subplot(1, 1, 1, projection='3d')
+    twoD = fig.add_subplot(2, 1, 1)
+    threeD = fig.add_subplot(2, 1, 2, projection='3d')
     # split data
     datatwoD = classified_result[0].detach().numpy()[0]
-    datatwoDQ = classified_result[1].detach().numpy()[0]
     dataThreeD = classified_result[2].detach().numpy()[0]
 
     # 2d plots
     datatwoDx = [d[0] for d in datatwoD]
     datatwoDy = [d[1] for d in datatwoD]
 
-    datatwoDqx = [d[0] for d in datatwoD]
-    datatwoDqy = [d[1] for d in datatwoD]
 
-    """for i, point in enumerate(zip(datatwoDx, datatwoDy)):
+    for i, point in enumerate(zip(datatwoDx, datatwoDy)):
         twoD.scatter(point[0], point[1], c=plt_colors[i])
-    for i, point in enumerate(zip(datatwoDqx, datatwoDqy)):
-        twoDQ.scatter(point[0], point[1], c=plt_colors[i])"""
     # 3d plot
     dataThreeDx = [d[0] for d in dataThreeD]
     dataThreeDy = [d[1] for d in dataThreeD]
@@ -119,10 +112,15 @@ def plot_from_single_image(classified_result):
 if __name__ == "__main__":
     applied_transform = transforms.Compose([transforms.Resize((224, 224)),
                                             transforms.ToTensor()])
+
     pic_path = Path("test_hand_with_pliers.jpg")
-    #pic_path_2 = Path('dad_hand_with_knife.jpeg')
+    pic_path_2 = Path('dad_hand_with_knife.jpeg')
+    ex_hand = Path('example_hand.jpg')
+    vince_hand = Path('vince_hand.jpeg')
+    luke_hand = Path('luke_hand.jpeg')
+
     hope = loaded_model()
-    out = classify(hope, pic_path, applied_transform)
+    out = classify(hope, luke_hand, applied_transform)
     ret = plot_from_single_image(out)
     ret.show()
     ret.savefig('test.png')
