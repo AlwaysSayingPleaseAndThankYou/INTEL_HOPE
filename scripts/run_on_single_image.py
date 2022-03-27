@@ -113,14 +113,15 @@ if __name__ == "__main__":
     applied_transform = transforms.Compose([transforms.Resize((224, 224)),
                                             transforms.ToTensor()])
 
-    pic_path = Path("test_hand_with_pliers.jpg")
-    pic_path_2 = Path('dad_hand_with_knife.jpeg')
-    ex_hand = Path('example_hand.jpg')
-    vince_hand = Path('vince_hand.jpeg')
-    luke_hand = Path('luke_hand.jpeg')
+    pic_path = Path("orig_hands/test_hand_with_pliers.jpg")
+    pic_path_2 = Path('orig_hands/dad_hand_with_knife.jpeg')
+    ex_hand = Path('orig_hands/example_hand.jpg')
+    vince_hand = Path('orig_hands/vince_hand.jpeg')
+    luke_hand = Path('orig_hands/luke_hand.jpeg')
+    image_8 = Path('orig_hands/image8.jpeg')
 
     hope = loaded_model()
-    out = classify(hope, luke_hand, applied_transform)
+    out = classify(hope, image_8, applied_transform)
     ret = plot_from_single_image(out)
     ret.show()
     ret.savefig('test.png')
