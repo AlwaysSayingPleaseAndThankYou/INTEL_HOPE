@@ -1,3 +1,4 @@
+import matplotlib
 import numpy as np
 from pathlib import Path
 from collections import OrderedDict
@@ -6,7 +7,9 @@ from PIL import Image
 import torch
 from torchvision import transforms
 import matplotlib.pyplot as plt
-
+import os
+import matplotlib.animation as animation
+plt.ion()
 
 def loaded_model():
     hope = HopeNet()
@@ -31,7 +34,7 @@ def classify(model, image: Path, model_transform):
         print("#" * 10 + "error" + "#" * 10)
 
 
-def plot_from_single_image(classified_result, subplotflat, subplot3d):
+def plot_from_single_image(classified_result, subplotflat, subplot3d, title):
     """
         note on assigning colors: the final 8 points indicate corners of the object, where the other 21
         points are the vertices describing the hand, currently operating on the guess that point 0 is the wrist point
@@ -54,18 +57,19 @@ def plot_from_single_image(classified_result, subplotflat, subplot3d):
         for i in range(0, 29)]
     # figures
     fig = plt.figure()
-    twoD = fig.add_subplot(2, 1, 1)
-    threeD = fig.add_subplot(2, 1, 2, projection='3d')
+    # twoD = fig.add_subplot(2, 1, 1)
+    threeD = fig.add_subplot(projection='3d')
+    threeD.set_title(label=title)
     # split data
     datatwoD = classified_result[0].detach().numpy()[0]
     dataThreeD = classified_result[2].detach().numpy()[0]
 
     # 2d plots
-    datatwoDx = [d[0] for d in datatwoD]
-    datatwoDy = [d[1] for d in datatwoD]
+    # datatwoDx = [d[0] for d in datatwoD]
+    # datatwoDy = [d[1] for d in datatwoD]
 
-    for i, point in enumerate(zip(datatwoDx, datatwoDy)):
-        twoD.scatter(point[0], point[1], c=plt_colors[i])
+    # for i, point in enumerate(zip(datatwoDx, datatwoDy)):
+    #     twoD.scatter(point[0], point[1], c=plt_colors[i])
     # 3d plot
     dataThreeDx = [d[0] for d in dataThreeD]
     dataThreeDy = [d[1] for d in dataThreeD]
@@ -105,28 +109,86 @@ def plot_from_single_image(classified_result, subplotflat, subplot3d):
             [ThreeDPoints[i - 4][1], ThreeDPoints[i][1]], \
             [ThreeDPoints[i - 4][2], ThreeDPoints[i][2]], \
             c=plt_colors[i])
-    threeD.view_init(45, 60)
-    plt.draw()
-    plt.pause(0.001)
+    threeD.view_init(0, 0)
+    threeD.set_title(label=title)
     return fig
+    # plt.draw()
+    # plt.pause(0.001)
+    # return fig
 
 
 applied_transform = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor()])
 
+
+class analyze_set:
+
+    def __init__(self, directory, fig, model):
+        """
+
+        Parameters
+        ----------
+        directory : PATH to directory with files
+        fig : matplotlib figure
+        model: loaded HOPE model
+        """
+        self.directory = directory
+        self.files = os.listdir(self.directory).__iter__()
+        self.model = model
+        self.fig = fig
+
+    def single_image_data(self, result):
+        plt_colors = [[0.5 if i == 0 else 1.0 if (0 < i <= 8) or (16 < i <= 20) else 0.0,
+                       0.5 if i == 0 else 1.0 if 4 < i <= 12 else 0.0,
+                       0.5 if i == 0 else 1.0 if 12 < i <= 20 else 0.0] for i in range(0, 29)]
+        data_three_d = result[2].detach().numpy()[0]
+        data_three_dx = [d[0] for d in data_three_d]
+        data_three_dy = [d[1] for d in data_three_d]
+        data_three_dz = [d[2] for d in data_three_d]
+        three_d_points = [[data_three_dx[i], data_three_dy[i], data_three_dz[i]] for i in range(0, len(data_three_dx))]
+        data1 = []
+        for i in range(1, 21, 4):
+            data1.append([[three_d_points[0][0], three_d_points[i][0], three_d_points[i + 1][0], three_d_points[i + 2][0],
+                           three_d_points[i + 3][0]],
+                          [three_d_points[0][1], three_d_points[i][1], three_d_points[i + 1][1], three_d_points[i + 2][1],
+                           three_d_points[i + 3][1]],
+                          [three_d_points[0][2], three_d_points[i][2], three_d_points[i + 1][2], three_d_points[i + 2][2],
+                           three_d_points[i + 3][2]]])
+
+    def animate(self):
+        """
+        to be passed to matplotlib.animate
+        runs run_on_single_image on single image from stream/directory
+        Returns
+        -------
+
+        """
+        single_image = self.directory / Path(next(self.files))
+        classified = classify(self.model, single_image, applied_transform)
+        pass
+
+
 if __name__ == "__main__":
+    fig = plt.figure()
+    hope = loaded_model()
+    hand_data = Path('/Users/aenguscrowley/PycharmProjects/stream_from_esp32_cam/grabbed_photos')
+    analyse = analyze_set(hand_data, fig, model=hope)
+    print(os.listdir(hand_data))
+
     fig = plt.figure()
     flatplot = fig.add_subplot(2, 1, 1)
     threedplot = fig.add_subplot(2, 1, 2)
+    hands_dict = {'pic_path': Path("orig_hands/test_hand_with_pliers.jpg"),
+                  'pic_path_2': Path('orig_hands/dad_hand_with_knife.jpeg'),
+                  'ex_hand': Path('orig_hands/example_hand.jpg'), 'vince_hand': Path('orig_hands/vince_hand.jpeg'),
+                  'luke_hand': Path('orig_hands/luke_hand.jpeg'), 'image_8': Path('orig_hands/image8.jpeg')}
 
-    pic_path = Path("orig_hands/test_hand_with_pliers.jpg")
-    pic_path_2 = Path('orig_hands/dad_hand_with_knife.jpeg')
-    ex_hand = Path('orig_hands/example_hand.jpg')
-    vince_hand = Path('orig_hands/vince_hand.jpeg')
-    luke_hand = Path('orig_hands/luke_hand.jpeg')
-    image_8 = Path('orig_hands/image8.jpeg')
-
-    hope = loaded_model()
-    out = classify(hope, image_8, applied_transform)
-    ret = plot_from_single_image(out, subplotflat=flatplot, subplot3d=threedplot)
-    ret.show()
-    ret.savefig('test.png')
+    num_photos = len(os.listdir(hand_data))
+    for i in range(1, num_photos):
+        image = f"image{i}.jpeg"
+        file = hand_data / Path(image)
+        out = classify(hope, file, applied_transform)
+        ret = plot_from_single_image(
+            out, subplotflat=flatplot, subplot3d=threedplot, title=image)
+        plt.pause(0.001)
+        ret.canvas.draw()
+        # ret.savefig('test.png')
