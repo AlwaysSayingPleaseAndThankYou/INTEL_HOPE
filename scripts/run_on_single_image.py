@@ -13,7 +13,7 @@ plt.ion()
 
 def loaded_model():
     hope = HopeNet()
-    p = Path("..", "checkpoints", "Feb_26.pkl375.pkl").resolve()
+    p = Path("/Users/aenguscrowley/PycharmProjects/REAL_HOPE/checkpoints/Feb_26.pkl375.pkl")
     bad_dict = torch.load(p, map_location=torch.device('cpu'))
 
     good_dict = OrderedDict({key[len('module.'):]: value for key, value in bad_dict.items()})
@@ -34,7 +34,7 @@ def classify(model, image: Path, model_transform):
         print("#" * 10 + "error" + "#" * 10)
 
 
-def plot_from_single_image(classified_result, subplotflat, subplot3d, title):
+def plot_from_single_image(classified_result, title, fig):
     """
         note on assigning colors: the final 8 points indicate corners of the object, where the other 21
         points are the vertices describing the hand, currently operating on the guess that point 0 is the wrist point
@@ -55,8 +55,6 @@ def plot_from_single_image(classified_result, subplotflat, subplot3d, title):
             0.5 if i == 0 else 1.0 if i > 4 and i <= 12 else 0.0, \
             0.5 if i == 0 else 1.0 if i > 12 and i <= 20 else 0.0] \
         for i in range(0, 29)]
-    # figures
-    fig = plt.figure()
     # twoD = fig.add_subplot(2, 1, 1)
     threeD = fig.add_subplot(projection='3d')
     threeD.set_title(label=title)
@@ -137,6 +135,18 @@ class analyze_set:
         self.fig = fig
 
     def single_image_data(self, result):
+        """
+        Unfinished. Attempting to extract the data from run on single image. in a way that preserves daniels lines. Totally not sure how this works.
+
+        Parameters
+        ----------
+        result
+
+        Returns
+        -------
+
+        """
+
         plt_colors = [[0.5 if i == 0 else 1.0 if (0 < i <= 8) or (16 < i <= 20) else 0.0,
                        0.5 if i == 0 else 1.0 if 4 < i <= 12 else 0.0,
                        0.5 if i == 0 else 1.0 if 12 < i <= 20 else 0.0] for i in range(0, 29)]
@@ -167,14 +177,14 @@ class analyze_set:
         pass
 
 
-if __name__ == "__main__":
+def nope():
     fig = plt.figure()
     hope = loaded_model()
+
     hand_data = Path('/Users/aenguscrowley/PycharmProjects/stream_from_esp32_cam/grabbed_photos')
     analyse = analyze_set(hand_data, fig, model=hope)
     print(os.listdir(hand_data))
 
-    fig = plt.figure()
     flatplot = fig.add_subplot(2, 1, 1)
     threedplot = fig.add_subplot(2, 1, 2)
     hands_dict = {'pic_path': Path("orig_hands/test_hand_with_pliers.jpg"),
@@ -186,9 +196,14 @@ if __name__ == "__main__":
     for i in range(1, num_photos):
         image = f"image{i}.jpeg"
         file = hand_data / Path(image)
+        file = hands_dict['ex_hand']
         out = classify(hope, file, applied_transform)
         ret = plot_from_single_image(
-            out, subplotflat=flatplot, subplot3d=threedplot, title=image)
+            out, title=image, fig=fig)
         plt.pause(0.001)
         ret.canvas.draw()
         # ret.savefig('test.png')
+
+def run(fpath, fig):
+    out = classify(hope, fpath, applied_transform)
+    ret = plot_from_single_image(hope, )
